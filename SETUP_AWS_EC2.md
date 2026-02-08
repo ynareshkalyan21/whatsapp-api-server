@@ -168,7 +168,53 @@ By following these precautions, the risk of being blocked is minimized, but **th
 - For warmed-up accounts (active for weeks with consistent usage): Up to **500 messages/day** spread throughout the day.
 - Always distribute sending times and avoid bursts.
 
-## 11. Security Notes
+## 11. Pulling Updates & Redeploying
+
+To update your API server with the latest changes from GitHub:
+
+1. **SSH into your EC2 instance**  
+   ```bash
+   ssh -i your-key.pem ec2-user@<EC2_PUBLIC_IP>
+   ```
+   *(Use `ubuntu` instead of `ec2-user` if you’re on Ubuntu AMI)*
+
+2. **Navigate to your project directory**  
+   ```bash
+   cd whatsapp-api-server
+   ```
+
+3. **Pull the latest code**  
+   ```bash
+   git pull origin main
+   ```
+
+4. **Install new dependencies** (only if `package.json` changes)  
+   ```bash
+   npm install
+   ```
+
+5. **Restart the server**:
+   - If running directly:  
+     ```bash
+     pkill -f "node index.js"
+     node index.js
+     ```
+   - If using PM2:  
+     ```bash
+     pm2 stop whatsapp-api
+     pm2 delete whatsapp-api
+     pm2 start index.js --name whatsapp-api
+     pm2 save
+     ```
+
+**Short redeploy (PM2 only, no dependency changes):**
+```bash
+git pull origin main && pm2 restart whatsapp-api
+```
+
+---
+
+## 12. Security Notes
 - Never commit `auth_info_baileys/` to public repositories.
 - Use **AWS Security Groups** to restrict API access.
 - Use HTTPS with a reverse proxy (Nginx + SSL) for production.
